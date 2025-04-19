@@ -1,8 +1,23 @@
 import requests
 import base64
+from supabase import create_client
 
+# Initialize Supabase config
+SUPABASE_URL = "https://advfymskrwzncvmlgrxz.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkdmZ5bXNrcnd6bmN2bWxncnh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNTk2ODAsImV4cCI6MjA2MDYzNTY4MH0.rLWsbtWRwfah1q_EXB86QFYABXO_j53PnjNITeGmPcc"
+
+# Gemini API config
 GEMINI_API_KEY = "AIzaSyA8eFP7AB8OopYbcGcjPCO1Adp-WGovVPQ"
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+
+BUCKET_NAME = "receipts"
+GEMINI_MODEL_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+
+# --- INIT SUPABASE ---
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# --- UTILS ---
+def generate_public_url(file_path):
+    return f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{file_path}"
 
 def image_url_to_base64(image_url):
     image_response = requests.get(image_url)
@@ -31,7 +46,7 @@ def extract_amount_from_receipt(image_url):
         ]
     }
 
-    response = requests.post(GEMINI_API_URL, json=payload)
+    response = requests.post(GEMINI_MODEL_URL, json=payload)
 
     if response.status_code == 200:
         try:
@@ -41,21 +56,23 @@ def extract_amount_from_receipt(image_url):
     else:
         return f"Error: {response.status_code}, {response.text}"
 
-def list_available_models():
-    list_models_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
-    response = requests.get(list_models_url)
-    
-    if response.status_code == 200:
-        models = response.json().get("models", [])
-        return [model.get("name") for model in models]
-    else:
-        return f"Error listing models: {response.status_code}, {response.text}"
+# --- MAIN WORKFLOW ---
+def process_receipts():
+    image_files = [
+        "refund_req1.png",
+        "refund_req2.png",
+        "refund_req3.png"
+    ]
 
-# # Example usage
-image_url = "https://advfymskrwzncvmlgrxz.supabase.co/storage/v1/object/public/receipts//refund_req2.png"
-result = extract_amount_from_receipt(image_url)
-print("Total amount extracted from receipt:", result)
+    for file in image_files:
+        file_path = file
+        public_url = generate_public_url(file_path)
+        print(f"\n🔗 Processing: {public_url}")
+        try:
+            amount = extract_amount_from_receipt(public_url)
+            print(f"💰 Extracted Amount: {amount}")
+        except Exception as e:
+            print(f"❌ Error processing {file_path}: {e}")
 
-# Uncomment to list available models
-# available_models = list_available_models()
-# print("Available models:", available_models)
+# --- RUN ---
+process_receipts()
