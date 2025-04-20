@@ -14,9 +14,44 @@ A powerful agent that can interact with a Supabase database, process audio files
 ### Prerequisites
 
 - Python 3.8+
-- FFmpeg (automatically downloaded on Windows if not present)
+- FFmpeg (detailed installation instructions below)
 - Supabase account and API credentials
 - Gemini API key
+
+### FFmpeg Installation
+
+FFmpeg is required for audio processing. The application will attempt to download and configure FFmpeg automatically on Windows, but you can also install it manually:
+
+#### Windows
+1. **Automatic Installation** (recommended):
+   - The application will automatically download and configure FFmpeg on first run
+   - No manual steps required
+
+2. **Manual Installation**:
+   - Download from the [FFmpeg official website](https://ffmpeg.org/download.html#build-windows)
+   - Extract the files to a folder (e.g., `C:\ffmpeg`)
+   - Add the bin folder to your PATH: `setx PATH "%PATH%;C:\ffmpeg\bin"`
+   - Restart your terminal for changes to take effect
+
+#### macOS
+```
+brew install ffmpeg
+```
+
+#### Ubuntu/Debian
+```
+sudo apt update
+sudo apt install ffmpeg
+```
+
+#### Other Linux
+```
+# Fedora
+sudo dnf install ffmpeg
+
+# Arch Linux
+sudo pacman -S ffmpeg
+```
 
 ### Installation
 
@@ -110,8 +145,19 @@ The application assumes a Supabase database with tables like:
 
 ### FFmpeg Issues
 If you encounter issues with audio transcription:
-- Windows: The application will attempt to download and configure FFmpeg automatically
-- Other platforms: Install FFmpeg using your package manager
+
+#### Windows
+- The application will attempt to download and configure FFmpeg automatically
+- If automatic download fails, you'll see a warning message
+- Check if your antivirus is blocking the download or execution of FFmpeg
+- Try manual installation as described in the FFmpeg Installation section
+- Ensure the bin directory containing ffmpeg.exe is in your PATH
+
+#### Linux/macOS
+- Verify FFmpeg is installed: `ffmpeg -version`
+- If not found, install using your package manager as shown in the FFmpeg Installation section
+- If installed but not working, check your PATH: `echo $PATH`
+- Try creating a symlink: `sudo ln -s /path/to/ffmpeg /usr/local/bin/ffmpeg`
 
 ### Database Connection
 If database operations fail:
