@@ -1,2 +1,5 @@
 requests
 supabase
+openai-whisper
+torch
+ffmpeg-python
