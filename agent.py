@@ -41,7 +41,8 @@ def execute_sql_query(query: str):
     try:
         query = query.strip().rstrip(';')  # Remove the semicolon
         print(f"Executing SQL Query: {query}")  # Debugging line
-        response = sb.rpc('run_sql', {'sql_query': query}).execute()
+        # response = sb.rpc('run_sql', {'sql_query': query}).execute()
+        response = sb.rpc("run_sql_query", {"sql_query": query}).execute()
         return response.data
     except Exception as e:
         return {"error": str(e)}
